@@ -1,6 +1,7 @@
 package ui;
 
 import antiprimes.AntiPrimesSequence;
+import antiprimes.AntiPrimesSequence.AntiPrimesSequenceListener;
 import antiprimes.Number;
 
 import javax.swing.*;
@@ -12,7 +13,7 @@ import java.awt.event.ActionListener;
 /**
  * The application window.
  */
-public class MainWindow extends JFrame {
+public class MainWindow extends JFrame implements AntiPrimesSequenceListener{
 
     private AntiPrimesSequence sequence;
     private DefaultListModel display = new DefaultListModel();
@@ -23,7 +24,13 @@ public class MainWindow extends JFrame {
      * Build a window tied to the given sequence of antinumbers.
      */
     public MainWindow(AntiPrimesSequence sequence) {
-        this.sequence = sequence;
+        
+    	
+    	this.sequence = sequence;
+        
+        //add a listener to the sequence
+    	sequence.addListener(this);
+        
         setTitle("Antiprimes");
 
         JScrollPane list = new JScrollPane(new JList(display));
@@ -35,7 +42,6 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 sequence.computeNext();
-                updateDisplay();
             }
         });
 
@@ -73,4 +79,13 @@ public class MainWindow extends JFrame {
         for (Number n : sequence.getLastK(SHOW_LAST))
             display.add(0, "" + n.getValue() + " (" + n.getDivisors() + ")");
     }
+
+	@Override
+	public void notifyListeners() {
+		updateDisplay();
+	}
+	
+	
+	
+	
 }

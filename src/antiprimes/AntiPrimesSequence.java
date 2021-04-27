@@ -20,7 +20,8 @@ public class AntiPrimesSequence {
     //the number processor, that does the actual heavy lifting 
     NumberProcessor numProcessor;
     
-
+    //this AntiPrimesSequence's listener
+    AntiPrimesSequenceListener listener;
     
     //Create a new sequence containing only the first antiprime (the number '1').
     public AntiPrimesSequence() {
@@ -45,27 +46,35 @@ public class AntiPrimesSequence {
     //Tell number processor to find a new antiprime and let it add it to the sequence
     //called by MainWindow
     public void computeNext() {
-    	numProcessor.computeNextAntiprime(getLast());
+    	try {
+			numProcessor.computeNextAntiprime(getLast());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     }
     
      //add an antiprime (calculated elsewhere) to the list.
     //called nu NumberProcessor
-    public void addAntiPrime(Number number) {
+    //synced: only one numberprocessorthread can modify list at a time
+    synchronized public void addAntiPrime(Number number) {
+    	//add antiprime
     	antiPrimes.add(number);
+    	//notify listeners
+    	listener.notifyListeners();
     }
 
     
     
     
     //Return the last antiprime found.
-    public Number getLast() {
+    synchronized public Number getLast() {
         int n = antiPrimes.size();
         return antiPrimes.get(n - 1);
     }
 
     
     //Return the last k antiprimes found.
-    public List<Number> getLastK(int k) {
+    synchronized public List<Number> getLastK(int k) {
         int n = antiPrimes.size();
         if (k > n)
             k = n;
@@ -75,7 +84,15 @@ public class AntiPrimesSequence {
     
     
     
+    //interface made to communicate with this class
+    public interface AntiPrimesSequenceListener {
+    	public void notifyListeners();
+    }
     
+    //add a listener 
+    public void addListener(AntiPrimesSequenceListener listener) {
+    	this.listener = listener;
+    }
     
     
     
